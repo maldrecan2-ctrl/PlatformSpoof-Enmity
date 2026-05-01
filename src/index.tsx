@@ -2,7 +2,7 @@ import { Plugin, registerPlugin } from "enmity/managers/plugins";
 import { getByProps } from "enmity/metro";
 import { React } from "enmity/metro/common";
 import { create } from "enmity/patcher";
-import { getString } from "enmity/api/settings";
+import { get } from "enmity/api/settings";
 import Settings from "./components/Settings";
 
 const Patcher = create("dre-PlatformSpoof");
@@ -18,7 +18,7 @@ const drePlatformSpoof: Plugin = {
     }],
 
     onStart() {
-        const platform = getString("PlatformSpoof", "platform", "desktop");
+        const platform = get("PlatformSpoof", "platform", "desktop");
         let browserStr = "Discord Client";
         
         switch (platform) {
