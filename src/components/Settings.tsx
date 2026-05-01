@@ -7,47 +7,59 @@ interface SettingsProps {
 }
 
 export default ({ settings }: SettingsProps) => {
-   const [currentPlatform, setCurrentPlatform] = React.useState(settings.getString('platform', 'desktop'));
+   // Enmity'nin çökmemsi için React Hooks (useState) ve bilinmeyen settings metodlarını kullanmıyoruz.
+   let currentPlatform = 'desktop';
+   try {
+       // Global ayar objesinden okumaya çalış
+       const EnmitySettings = (window as any).enmity?.settings;
+       if (EnmitySettings) {
+           currentPlatform = EnmitySettings.get('PlatformSpoof', 'platform', 'desktop');
+       }
+   } catch(e) {}
 
    const handleSelect = (val: string) => {
-       settings.set('platform', val);
-       setCurrentPlatform(val);
+       try {
+           settings.set('platform', val);
+           // Kullanıcıya seçildiğini hissettirmek için menüde işlem yapıldı
+           // Not: React state kullanılmadığı için yanındaki "Seçili" yazısı anında değişmez,
+           // ancak menüye tekrar girildiğinde güncellenmiş olur.
+       } catch(e) {}
    };
 
    return <>
        <FormRow 
           label='Geçerli Cihaz' 
-          subLabel={`Şu an seçili olan: ${currentPlatform.toUpperCase()} (Değiştirdikten sonra uygulamayı kapatıp açın)`} 
+          subLabel={`Şu an seçili olan: ${currentPlatform.toUpperCase()} (Değiştirdikten sonra Discord'u tamamen kapatıp açın)`} 
        />
        
        <FormRow 
           label='Bilgisayar (Desktop)' 
-          subLabel={currentPlatform === 'desktop' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'desktop' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('desktop')} 
        />
        <FormRow 
           label='Tarayıcı (Web)' 
-          subLabel={currentPlatform === 'web' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'web' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('web')} 
        />
        <FormRow 
           label='Android' 
-          subLabel={currentPlatform === 'android' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'android' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('android')} 
        />
        <FormRow 
           label='iPhone (iOS)' 
-          subLabel={currentPlatform === 'ios' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'ios' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('ios')} 
        />
        <FormRow 
           label='Xbox' 
-          subLabel={currentPlatform === 'xbox' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'xbox' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('xbox')} 
        />
        <FormRow 
           label='Playstation' 
-          subLabel={currentPlatform === 'playstation' ? '✅ Aktif' : 'Seçmek için dokunun'} 
+          subLabel={currentPlatform === 'playstation' ? '✅ Seçili' : 'Seçmek için dokunun'} 
           onPress={() => handleSelect('playstation')} 
        />
    </>;
