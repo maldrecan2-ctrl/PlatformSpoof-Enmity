@@ -1,4 +1,4 @@
-import { FormRow } from 'enmity/components';
+import { FormRow, FormSwitch } from 'enmity/components';
 import { SettingsStore } from 'enmity/api/settings';
 import { React } from 'enmity/metro/common';
 
@@ -7,60 +7,57 @@ interface SettingsProps {
 }
 
 export default ({ settings }: SettingsProps) => {
-   // Enmity'nin çökmemsi için React Hooks (useState) ve bilinmeyen settings metodlarını kullanmıyoruz.
-   let currentPlatform = 'desktop';
-   try {
-       // Global ayar objesinden okumaya çalış
-       const EnmitySettings = (window as any).enmity?.settings;
-       if (EnmitySettings) {
-           currentPlatform = EnmitySettings.get('PlatformSpoof', 'platform', 'desktop');
-       }
-   } catch(e) {}
-
-   const handleSelect = (val: string) => {
-       try {
-           settings.set('platform', val);
-           // Kullanıcıya seçildiğini hissettirmek için menüde işlem yapıldı
-           // Not: React state kullanılmadığı için yanındaki "Seçili" yazısı anında değişmez,
-           // ancak menüye tekrar girildiğinde güncellenmiş olur.
-       } catch(e) {}
-   };
-
+   // SecretMessage eklentisiyle %100 aynı yapıyı kullanıyoruz (Sadece FormSwitch ve getBoolean)
    return <>
-       <FormRow 
-          label='Geçerli Cihaz' 
-          subLabel={`Şu an seçili olan: ${currentPlatform.toUpperCase()} (Değiştirdikten sonra Discord'u tamamen kapatıp açın)`} 
-       />
-       
-       <FormRow 
-          label='Bilgisayar (Desktop)' 
-          subLabel={currentPlatform === 'desktop' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('desktop')} 
-       />
-       <FormRow 
-          label='Tarayıcı (Web)' 
-          subLabel={currentPlatform === 'web' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('web')} 
-       />
-       <FormRow 
-          label='Android' 
-          subLabel={currentPlatform === 'android' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('android')} 
-       />
-       <FormRow 
-          label='iPhone (iOS)' 
-          subLabel={currentPlatform === 'ios' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('ios')} 
-       />
-       <FormRow 
-          label='Xbox' 
-          subLabel={currentPlatform === 'xbox' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('xbox')} 
-       />
-       <FormRow 
-          label='Playstation' 
-          subLabel={currentPlatform === 'playstation' ? '✅ Seçili' : 'Seçmek için dokunun'} 
-          onPress={() => handleSelect('playstation')} 
-       />
+      <FormRow
+         label='Tarayıcı (Web)'
+         subLabel='Sizi Discord Web üzerinden giriyor gibi gösterir.'
+         trailing={
+            <FormSwitch
+               value={settings.getBoolean('spoof_web', false)}
+               onValueChange={(value: boolean) => settings.set('spoof_web', value)}
+            />
+         }
+      />
+      <FormRow
+         label='Android'
+         subLabel='Sizi Android cihazdan giriyor gibi gösterir.'
+         trailing={
+            <FormSwitch
+               value={settings.getBoolean('spoof_android', false)}
+               onValueChange={(value: boolean) => settings.set('spoof_android', value)}
+            />
+         }
+      />
+      <FormRow
+         label='iPhone (iOS)'
+         subLabel='Sizi iPhone üzerinden giriyor gibi gösterir.'
+         trailing={
+            <FormSwitch
+               value={settings.getBoolean('spoof_ios', false)}
+               onValueChange={(value: boolean) => settings.set('spoof_ios', value)}
+            />
+         }
+      />
+      <FormRow
+         label='Xbox'
+         subLabel='Sizi Xbox üzerinden giriyor gibi gösterir.'
+         trailing={
+            <FormSwitch
+               value={settings.getBoolean('spoof_xbox', false)}
+               onValueChange={(value: boolean) => settings.set('spoof_xbox', value)}
+            />
+         }
+      />
+      <FormRow
+         label='Playstation'
+         subLabel='Sizi Playstation üzerinden giriyor gibi gösterir.'
+         trailing={
+            <FormSwitch
+               value={settings.getBoolean('spoof_playstation', false)}
+               onValueChange={(value: boolean) => settings.set('spoof_playstation', value)}
+            />
+         }
+      />
    </>;
 };

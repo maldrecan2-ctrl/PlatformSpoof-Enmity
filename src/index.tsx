@@ -11,32 +11,20 @@ const PlatformSpoof: Plugin = {
    ...manifest,
 
    onStart() {
-      // Eklenti yüklendiğinde ayarları okumak için Enmity'nin genel ayar deposunu kullanıyoruz.
-      // Enmity eklentilerine settings fonksiyonları `getSettingsPanel` üzerinden veriliyor ama 
-      // global `enmity/api/settings` kullanmak yerine `window.enmity.settings` da denenebilir.
-      // Ancak en güvenli yol, daha önce SecretMessage'da çalışan window objesi üzerinden okumaktır.
-      // Eğer yoksa varsayılan olarak desktop kalır.
+      let browserStr = "Discord Client"; // Varsayılan: Bilgisayar
       
-      let platform = "desktop";
       try {
+          // SecretMessage'da kullandığımızın tam tersine okuma yöntemi olarak 
+          // direkt global Settings objesinden getBoolean ile çekiyoruz.
           const EnmitySettings = (window as any).enmity?.settings;
           if (EnmitySettings) {
-              platform = EnmitySettings.getString('PlatformSpoof', 'platform', 'desktop');
+              if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_web', false)) browserStr = "Discord Web";
+              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_android', false)) browserStr = "Discord Android";
+              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_ios', false)) browserStr = "Discord iOS";
+              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_xbox', false)) browserStr = "Discord Embedded";
+              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_playstation', false)) browserStr = "Discord Embedded";
           }
       } catch(e) {}
-
-      let browserStr = "Discord Client";
-      
-      switch (platform) {
-          case "desktop":    browserStr = "Discord Client"; break;
-          case "web":        browserStr = "Discord Web"; break;
-          case "ios":        browserStr = "Discord iOS"; break;
-          case "android":    browserStr = "Discord Android"; break;
-          case "xbox":       browserStr = "Discord Embedded"; break;
-          case "playstation":browserStr = "Discord Embedded"; break;
-          case "vr":         browserStr = "Discord VR"; break;
-          default:           browserStr = "Discord Client"; break;
-      }
       
       const superPropsModule = getByProps("getSuperProperties");
       
