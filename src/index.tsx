@@ -14,15 +14,18 @@ const PlatformSpoof: Plugin = {
       let browserStr = "Discord Client"; // Varsayılan: Bilgisayar
       
       try {
-          // SecretMessage'da kullandığımızın tam tersine okuma yöntemi olarak 
-          // direkt global Settings objesinden getBoolean ile çekiyoruz.
           const EnmitySettings = (window as any).enmity?.settings;
           if (EnmitySettings) {
-              if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_web', false)) browserStr = "Discord Web";
-              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_android', false)) browserStr = "Discord Android";
-              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_ios', false)) browserStr = "Discord iOS";
-              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_xbox', false)) browserStr = "Discord Embedded";
-              else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_playstation', false)) browserStr = "Discord Embedded";
+              if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_web', false)) {
+                  browserStr = "Discord Web";
+              } else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_mobile', false)) {
+                  browserStr = "Discord iOS"; // Discord iOS ve Discord Android ikisi de telefon simgesi verir.
+              } else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_console', false)) {
+                  browserStr = "Discord Embedded"; // Embedded konsollar için gamepad simgesi verir.
+              } else if (EnmitySettings.getBoolean('PlatformSpoof', 'spoof_vr', false)) {
+                  browserStr = "Discord VR";
+              }
+              // Eğer hiçbiri değilse veya spoof_desktop aktifse "Discord Client" olarak kalır.
           }
       } catch(e) {}
       

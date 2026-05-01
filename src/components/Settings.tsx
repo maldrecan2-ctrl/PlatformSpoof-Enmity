@@ -7,55 +7,80 @@ interface SettingsProps {
 }
 
 export default ({ settings }: SettingsProps) => {
-   // SecretMessage eklentisiyle %100 aynı yapıyı kullanıyoruz (Sadece FormSwitch ve getBoolean)
+   // Menünün kendini yenilemesi için küçük bir state tutuyoruz
+   const [renderId, setRenderId] = React.useState(0);
+
+   const handleToggle = (key: string, value: boolean) => {
+       if (value) {
+           // Biri açıldığında diğerlerini kapat
+           settings.set('spoof_desktop', false);
+           settings.set('spoof_web', false);
+           settings.set('spoof_mobile', false);
+           settings.set('spoof_console', false);
+           settings.set('spoof_vr', false);
+           
+           // Tıklananı aç
+           settings.set(key, true);
+       } else {
+           // Kapatılırsa sadece kapat
+           settings.set(key, false);
+       }
+       // Arayüzün güncellenmesini (diğer butonların kapalı gözükmesini) sağla
+       setRenderId(renderId + 1);
+   };
+
+   // Eğer hiçbiri seçili değilse varsayılan olarak Desktop seçili olsun
+   const isDesktop = settings.getBoolean('spoof_desktop', false) || 
+      !(settings.getBoolean('spoof_web', false) || settings.getBoolean('spoof_mobile', false) || settings.getBoolean('spoof_console', false) || settings.getBoolean('spoof_vr', false));
+
    return <>
+      <FormRow
+         label='Bilgisayar (Desktop)'
+         subLabel='Sizi bilgisayardan giriyor gibi gösterir (Varsayılan).'
+         trailing={
+            <FormSwitch
+               value={isDesktop}
+               onValueChange={(val: boolean) => handleToggle('spoof_desktop', val)}
+            />
+         }
+      />
       <FormRow
          label='Tarayıcı (Web)'
          subLabel='Sizi Discord Web üzerinden giriyor gibi gösterir.'
          trailing={
             <FormSwitch
                value={settings.getBoolean('spoof_web', false)}
-               onValueChange={(value: boolean) => settings.set('spoof_web', value)}
+               onValueChange={(val: boolean) => handleToggle('spoof_web', val)}
             />
          }
       />
       <FormRow
-         label='Android'
-         subLabel='Sizi Android cihazdan giriyor gibi gösterir.'
+         label='Telefon (Mobil)'
+         subLabel='Sizi telefondan (iOS/Android) giriyor gibi gösterir.'
          trailing={
             <FormSwitch
-               value={settings.getBoolean('spoof_android', false)}
-               onValueChange={(value: boolean) => settings.set('spoof_android', value)}
+               value={settings.getBoolean('spoof_mobile', false)}
+               onValueChange={(val: boolean) => handleToggle('spoof_mobile', val)}
             />
          }
       />
       <FormRow
-         label='iPhone (iOS)'
-         subLabel='Sizi iPhone üzerinden giriyor gibi gösterir.'
+         label='Oyun Konsolu'
+         subLabel='Sizi oyun konsolundan (Xbox/Playstation) giriyor gibi gösterir.'
          trailing={
             <FormSwitch
-               value={settings.getBoolean('spoof_ios', false)}
-               onValueChange={(value: boolean) => settings.set('spoof_ios', value)}
+               value={settings.getBoolean('spoof_console', false)}
+               onValueChange={(val: boolean) => handleToggle('spoof_console', val)}
             />
          }
       />
       <FormRow
-         label='Xbox'
-         subLabel='Sizi Xbox üzerinden giriyor gibi gösterir.'
+         label='Sanal Gerçeklik (VR)'
+         subLabel='Sizi VR (Sanal Gerçeklik) gözlüğünden giriyor gibi gösterir.'
          trailing={
             <FormSwitch
-               value={settings.getBoolean('spoof_xbox', false)}
-               onValueChange={(value: boolean) => settings.set('spoof_xbox', value)}
-            />
-         }
-      />
-      <FormRow
-         label='Playstation'
-         subLabel='Sizi Playstation üzerinden giriyor gibi gösterir.'
-         trailing={
-            <FormSwitch
-               value={settings.getBoolean('spoof_playstation', false)}
-               onValueChange={(value: boolean) => settings.set('spoof_playstation', value)}
+               value={settings.getBoolean('spoof_vr', false)}
+               onValueChange={(val: boolean) => handleToggle('spoof_vr', val)}
             />
          }
       />
