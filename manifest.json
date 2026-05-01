@@ -1,0 +1,12 @@
+{
+   "name": "PlatformSpoof",
+   "version": "1.0.0",
+   "description": "Spoof what platform or device you're on.",
+   "authors": [
+      {
+         "name": "rolex7exe",
+         "id": "460344197849808897"
+      }
+   ],
+   "color": "#e74c3c"
+}
