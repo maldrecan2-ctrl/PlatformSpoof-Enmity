@@ -1,10 +1,18 @@
-import { FormRow, FormSelect } from "enmity/components";
+import { FormRow } from "enmity/components";
+import { SettingsStore } from "enmity/api/settings";
+import { React } from "enmity/metro/common";
 import { ScrollView, View, Text } from "react-native";
-import { set, get } from "enmity/api/settings";
-import React from "react";
 
-export default function Settings() {
-    const [platform, setPlatform] = React.useState(get("PlatformSpoof", "platform", "desktop"));
+interface SettingsProps {
+   settings: SettingsStore;
+}
+
+export default ({ settings }: SettingsProps) => {
+    // In Enmity, there is no FormSelect out of the box that works perfectly, 
+    // but we can use FormRow with a simple state or just toggle between popular ones.
+    // However, since we want multiple options, we can list them as selectable rows.
+    
+    const [currentPlatform, setCurrentPlatform] = React.useState(settings.getString("platform", "desktop"));
 
     const options = [
         { label: "Desktop", value: "desktop" },
@@ -16,9 +24,9 @@ export default function Settings() {
         { label: "VR", value: "vr" }
     ];
 
-    const handleValueChange = (value: string) => {
-        set("PlatformSpoof", "platform", value);
-        setPlatform(value);
+    const handleSelect = (value: string) => {
+        settings.set("platform", value);
+        setCurrentPlatform(value);
     };
 
     return (
@@ -28,15 +36,18 @@ export default function Settings() {
                     Select Spoofed Platform
                 </Text>
                 <Text style={{ color: "#aaa", marginBottom: 16, fontSize: 14 }}>
-                    Choose the platform icon that will be displayed to others when you are online. (Requires app restart to take effect)
+                    Choose the platform icon that will be displayed to others. (Requires app restart to take effect)
                 </Text>
-                <FormSelect
-                    title="Platform"
-                    options={options}
-                    value={platform}
-                    onValueChange={handleValueChange}
-                />
+                
+                {options.map((opt) => (
+                    <FormRow
+                        key={opt.value}
+                        label={opt.label}
+                        subLabel={currentPlatform === opt.value ? "Selected" : ""}
+                        onPress={() => handleSelect(opt.value)}
+                    />
+                ))}
             </View>
         </ScrollView>
     );
-}
+};

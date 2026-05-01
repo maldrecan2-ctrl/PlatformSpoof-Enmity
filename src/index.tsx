@@ -1,10 +1,11 @@
 import { Plugin, registerPlugin } from "enmity/managers/plugins";
 import { getByProps } from "enmity/metro";
-import { Patcher } from "enmity/api/patcher";
-import { get } from "enmity/api/settings";
+import { React } from "enmity/metro/common";
+import { create } from "enmity/patcher";
+import { getString } from "enmity/api/settings";
 import Settings from "./components/Settings";
 
-const PatcherId = "dre-PlatformSpoof";
+const Patcher = create("dre-PlatformSpoof");
 
 const drePlatformSpoof: Plugin = {
     name: "PlatformSpoof",
@@ -17,7 +18,7 @@ const drePlatformSpoof: Plugin = {
     }],
 
     onStart() {
-        const platform = get("PlatformSpoof", "platform", "desktop");
+        const platform = getString("PlatformSpoof", "platform", "desktop");
         let browserStr = "Discord Client";
         
         switch (platform) {
@@ -31,11 +32,10 @@ const drePlatformSpoof: Plugin = {
             default:           browserStr = "Discord Client"; break;
         }
 
-        // Enmity'de (iOS) platformu spooflamak için genelde superProperties yamalanır.
         const superPropsModule = getByProps("getSuperProperties");
         
         if (superPropsModule) {
-            Patcher.after(PatcherId, superPropsModule, "getSuperProperties", (args, res) => {
+            Patcher.after(superPropsModule, "getSuperProperties", (self, args, res) => {
                 if (res) {
                     res.browser = browserStr;
                 }
@@ -43,21 +43,20 @@ const drePlatformSpoof: Plugin = {
             });
         }
         
-        // Bazı iOS sürümlerinde InfoDictionaryManager kullanılabilir
         const infoModule = getByProps("InfoDictionaryManager");
         if (infoModule && infoModule.InfoDictionaryManager) {
-            Patcher.after(PatcherId, infoModule.InfoDictionaryManager, "getBrowser", (args, res) => {
+            Patcher.after(infoModule.InfoDictionaryManager, "getBrowser", (self, args, res) => {
                 return browserStr;
             });
         }
     },
 
     onStop() {
-        Patcher.unpatchAll(PatcherId);
+        Patcher.unpatchAll();
     },
 
     getSettingsPanel({ settings }) {
-        return <Settings />;
+        return <Settings settings={settings} />;
     }
 };
 
