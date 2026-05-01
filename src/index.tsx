@@ -1,63 +1,46 @@
-import { Plugin, registerPlugin } from "enmity/managers/plugins";
-import { getByProps } from "enmity/metro";
-import { React } from "enmity/metro/common";
-import { create } from "enmity/patcher";
-import { get } from "enmity/api/settings";
-import Settings from "./components/Settings";
+import { Plugin, registerPlugin } from 'enmity/managers/plugins';
+import { getByProps } from 'enmity/metro';
+import { React } from 'enmity/metro/common';
+import { create } from 'enmity/patcher';
+import manifest from '../manifest.json';
+import Settings from './components/Settings';
 
-const Patcher = create("dre-PlatformSpoof");
+const Patcher = create('PlatformSpoof');
 
-const drePlatformSpoof: Plugin = {
-    name: "PlatformSpoof",
-    version: "1.0.0",
-    description: "Spoof what platform or device you're on",
-    color: "#e74c3c",
-    authors: [{
-        name: "rolex7exe",
-        id: "460344197849808897"
-    }],
+const PlatformSpoof: Plugin = {
+   ...manifest,
 
-    onStart() {
-        const platform = get("PlatformSpoof", "platform", "desktop");
-        let browserStr = "Discord Client";
-        
-        switch (platform) {
-            case "desktop":    browserStr = "Discord Client"; break;
-            case "web":        browserStr = "Discord Web"; break;
-            case "ios":        browserStr = "Discord iOS"; break;
-            case "android":    browserStr = "Discord Android"; break;
-            case "xbox":       browserStr = "Discord Embedded"; break;
-            case "playstation":browserStr = "Discord Embedded"; break;
-            case "vr":         browserStr = "Discord VR"; break;
-            default:           browserStr = "Discord Client"; break;
-        }
+   onStart() {
+      // Platformu varsayılan olarak desktop yapıyoruz, 
+      // ileride ayarlar eklenecek ama şu an çökme yapmaması için en stabil halde
+      const browserStr = "Discord Client";
+      
+      const superPropsModule = getByProps("getSuperProperties");
+      
+      if (superPropsModule) {
+          Patcher.after(superPropsModule, "getSuperProperties", (self, args, res) => {
+              if (res) {
+                  res.browser = browserStr;
+              }
+              return res;
+          });
+      }
+      
+      const infoModule = getByProps("InfoDictionaryManager");
+      if (infoModule && infoModule.InfoDictionaryManager) {
+          Patcher.after(infoModule.InfoDictionaryManager, "getBrowser", (self, args, res) => {
+              return browserStr;
+          });
+      }
+   },
 
-        const superPropsModule = getByProps("getSuperProperties");
-        
-        if (superPropsModule) {
-            Patcher.after(superPropsModule, "getSuperProperties", (self, args, res) => {
-                if (res) {
-                    res.browser = browserStr;
-                }
-                return res;
-            });
-        }
-        
-        const infoModule = getByProps("InfoDictionaryManager");
-        if (infoModule && infoModule.InfoDictionaryManager) {
-            Patcher.after(infoModule.InfoDictionaryManager, "getBrowser", (self, args, res) => {
-                return browserStr;
-            });
-        }
-    },
+   onStop() {
+      Patcher.unpatchAll();
+   },
 
-    onStop() {
-        Patcher.unpatchAll();
-    },
-
-    getSettingsPanel({ settings }) {
-        return <Settings settings={settings} />;
-    }
+   getSettingsPanel({ settings }) {
+      return <Settings settings={settings} />;
+   }
 };
 
-registerPlugin(drePlatformSpoof);
+registerPlugin(PlatformSpoof);
