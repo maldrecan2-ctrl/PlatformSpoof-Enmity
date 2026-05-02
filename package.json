@@ -1,7 +1,7 @@
 {
-   "name": "PlatformSpoof",
-   "description": "Spoof what platform or device you're on",
-   "version": "1.0.0",
+   "name": "SecretMessage",
+   "description": "Send secret message that only your friend can understand.",
+   "version": "1.0.4",
    "license": "GPL-3.0",
    "author": "rolex7exe",
    "scripts": {
